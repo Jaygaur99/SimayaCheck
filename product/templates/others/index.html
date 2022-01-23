@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'product/css/home.css' %}">
+<style>
+    a{
+        text-decoration: none;
+    }
+</style>
+{% endblock css %}
+
+{% block title %}Radhya Jewels{% endblock title %}
+
+{% block content %}
+
+<div class="container">
+    <a href="{% url 'shop' %}">
+        <div class="row bg-white">
+            <div class="col-6 ">
+                <img class="ring_img" src="{% static 'app/images/Radhya/ring.svg' %}" alt="">
+            </div>
+            <div class="col-6 bg">
+                <img class="ring_img ring_op" src="{% static 'app/images/Radhya/ring.svg' %}" alt="">
+                <div class="text-center">
+                    <div class="new">New Collection</div>
+                    <div class="br">Beautiful Rigns</div>
+                    <button class="sn">Shop Now</button>
+                </div>
+            </div>
+        </div>
+    </a>
+</div>
+<div class="container" style="background-color: #FFF8F8;">
+    <div class="text-center mt-5">
+        <div class="arrival">New Arrival</div>
+        <div class="ar_bg"></div>
+    </div>
+    <div id="tabs3">
+        <li class="t3_item">All</li>
+        {% for cat in categories %}
+            <li class="t3_item">{{ cat.name }}</li>
+        {% endfor %}
+    </div>
+    <div class="row" id='product-list'>
+        {% for product in products %}
+            <div class="col-sm-4 cr_content">
+                <img class="cr_img hov1" src="{{ product.get_primary_image }}" alt="" width='100%'>
+                <div class="hover_part1 text-center">
+                    <div class="cr_t">{{ product.name }}</div>
+                    <button class="sh_n mt-5 mb-5">Shop Now</button>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+<div class="container">
+    <div class="row mt-5">
+        <div class="col-sm-6 text-center">
+            <div class="spec">Special</div>
+            <div class="spec_h mt-3">Jewelry made from our hearts to your soul</div>
+            <div class="spec_d mt-3">Bibendum cras velit ut vel. Etiam a et risus duis vivamus donec faucibus. Nisl
+                eget et in velit diam non.</div>
+        </div>
+        <div class="col-sm-6">
+            <img class="neck" src="{% static 'app/images/Radhya/necklace.svg' %}" alt="">
+        </div>
+    </div>
+</div>
+<div class="container engg mt-5">
+            <div class="engg_t mt-2">Enggagement</div>
+            <div class="engg_t mt-2">Ring</div>
+            <div class="engg_d mt-3">Pellentesque cras nunc ipsum hendrerit varius. Ullamcorper sed enim enim interdum
+                pulvinar magna. Orci feugiat tellus eleifend enim magna morbi tincidunt etiam turpis..</div>
+            <a href="#"><div class="sn1 mt-3">Shop Now <i class="fa fa-arrow-right" aria-hidden="true"></i></div></a>
+</div>
+<div class=" bg-white">
+    <div class="text-center mt-3" id='collection-wrapper'>
+        <div class="arrival">Collection</div>
+        <div class="ar_bg"></div>
+        <div class="row">
+            {% for category in categories %}
+                <div class="col-sm-3" style="position: relative;">
+                    <a href="{% url 'collection' category=category.slug %}">
+                        <img class="hov11" style="width: -webkit-fill-available;;" src="{{ category.get_thumbnail }}" alt="">
+                        <div class="text-center hover_part11">
+                            <div class="hov_title">{{ category.name }}</div>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block js %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+    crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"
+    integrity="sha384-7+zCNj/IqJ95wo16oMtfsKbZ9ccEh31eOz1HGyDuCQ6wgnyJNSYdrPa03rtR1zdB"
+    crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"
+    integrity="sha384-QJHtvGhmr9XOIpI6YVutG+2QOK9T+ZnN4kzFN1RtK3zEFEIsxhlmWl5/YESvpZ13"
+    crossorigin="anonymous"></script>
+<script>
+    const hamburger = document.querySelector(".hamburger");
+    const navMenu = document.querySelector(".tabs2");
+    const tab = document.querySelector('.tabs')
+    hamburger.addEventListener("click", mobileMenu);
+
+    function mobileMenu() {
+        hamburger.classList.toggle("active");
+        navMenu.classList.toggle("active");
+        tab.classList.toggle('active');
+    }
+    var tabs3 = document.getElementById('tabs3')
+    var btns = tabs3.getElementsByClassName("t3_item");
+    for (var i = 0; i < btns.length; i++) {
+        btns[i].addEventListener("click", function() {
+            var current = document.getElementsByClassName("active");
+            current[0].className = current[0].className.replace(" active", "");
+            this.className += " active";
+        });
+    }
+</script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+    integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+    crossorigin="anonymous"></script>
+<script>
+    $('#tabs3').on('click', '.t3_item', function(e) {
+        // get the value of the clicked button
+        e.preventDefault();
+        var category = $(this).text();
+        console.log(category);
+        var url = ""
+        if(category === "All"){
+            url = '/shop/api/count/3'
+        } else {
+            url = '/shop/api/count/3/' + category
+        }
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                // console.log(data);
+                var html = '';
+                data.forEach(function(p) {
+                    fields = p['fields'];
+                    html += `
+                    <div class="col-sm-4 cr_content">
+                        <a href="/product/${p.pk}">
+                            <img class="cr_img hov1" src="${ fields.img_url }" alt="" width='100%'>
+                            <div class="hover_part1 text-center">
+                                <div class="cr_t">${ fields.name}</div>
+                                <button class="sh_n mt-5 mb-5">Shop Now</button>
+                            </div>
+                        </a>
+                    </div>
+                    `;
+                });
+                $('#product-list').empty();
+                $('#product-list').html(html);
+            });
+    });
+</script>
+{% endblock js %}

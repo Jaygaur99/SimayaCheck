@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block css %}
+    <link rel="stylesheet" id='one' href="{% static 'product/css/ring.css'%}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="{% static 'product/css/home.css'%}">
+    <link rel="stylesheet" href="{% static 'product/css/head_foot.css'%}">
+{% endblock %}
+
+{% block content %}
+    <!-- heading -->
+    <div class="ring">
+        <div class="ring-heading">
+            <img src="{% static 'app/images/img/rose.png' %} " alt="" srcset="" class="rose-top">
+                <h1 class="text-red" id='heading'>{{category_title|title}}</h1>
+                <img src="{% static 'app/images/img/linha.png' %} " alt="" width="30%">
+            <img src="{% static 'app/images/img/rose.png' %} " alt="" srcset="" class="rose-bottom">
+        </div>
+    <!-- heading -->
+    
+    <div id='upper-wrapper'>    
+        <div class="container">
+            <div class="collection">
+                {% if male_collection %}
+                    <div class='card'>
+                        <div class="card-img col-card">
+                            <img src="{{ male_collection.get_primary_image }}" alt="" >
+                            <div class="cardbg" style="cursor:pointer;"  id='man-card'>
+                                <h1 class="text-fent">Man {{ category_title|title }} Collection</h1><br>
+                                <span class='more' >Shop Now</span>
+                            </div>
+                        </div>
+                        <div class="ring-price">
+                            <h2 class="text-center text-fent">Man {{ category_title|title }} Collection</h2>
+                        </div>  
+                    </div>
+                {% endif %}
+                {% if female_collection %}
+                <div class='card'>
+                    <div class="card-img col-card">
+                        <img src="{{ female_collection.get_primary_image }}" alt="">
+                        <div class="cardbg"  style="cursor:pointer;" id='woman-card'>
+                            <h1 class="text-fent">Woman {{ category_title|title  }} Collection</h1><br>
+                            <span class='more' >Shop Now</span>
+                        </div>
+                    </div>
+                    <div class="ring-price">
+                        <h2 class="text-center text-fent">Woman {{ category_title|title }} Collection</h2>   
+                    </div>  
+                </div>   
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div id='product-wrapper'>
+        <div class="container">
+            <h1 class="all">All</h1>
+            <div class="ring-grid">
+                {% for product in products %}
+                    <div class='card'>
+                        <div class="card-img">
+                            <img src="{{ product.get_primary_image }} " alt="" width='100%'>
+                            <div class="cardbg">
+                                <span><a href="{% url 'single_product' pk=product.id %}">View Product</a></span>
+                            </div>
+                        </div>
+                        <div class="ring-price">
+                            <h4>{{ product.category }}</h4>
+                            <h3>{{ product.name }}</h3>
+                            <span><strong>Rs.{{ product.price }}</strong></span>
+                            <a href="{% url 'single_product' pk=product.id %}" class="btn">Shop Now</a>
+                        </div>  
+                    </div>
+                {% endfor %} 
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+{% block js %}
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+    integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+    crossorigin="anonymous"></script>
+<script>
+    var clicked = false;
+
+    function slugify(string) {
+        return string
+          .toString()
+          .trim()
+          .toLowerCase()
+          .replace(/\s+/g, "-")
+          .replace(/[^\w\-]+/g, "")
+          .replace(/\-\-+/g, "-")
+          .replace(/^-+/, "")
+          .replace(/-+$/, "");
+    }
+
+    function addEventListenerForCollections(){
+        $('#product-wrapper').html('');
+        $('#tabs3').on('click', '.imagearea', function(e) {
+            e.preventDefault();
+            var name = $(this).find('.ring-name').text();
+            var slug = slugify(name);
+            fetch('/shop/collection/product/'+slug)
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    html = `
+                    <div class="filter-bar">
+                        <div class="no-of-results">
+                            Showing ${data.length} results for rings
+                        </div>
+                        <div class="c-f-container">
+                            <div class="collection-name" id="collection-heading">
+                                ${name}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="products">
+                    `;
+                    data.forEach(function(p){
+                        fields = p['fields'];
+                        html += `
+                            <div class="product">
+                                <div class="img-area">
+                                    <img src="${ fields.img_url }" alt="" />
+                                    <div class="img-text">
+                                    <a class="view-product" href="/product/${p.pk}"><nobr>View Product</nobr></a>
+                                    </div>
+                                </div>
+                                <div class="product-info">
+                                    <div class="type">Ring</div>
+                                    <p class="p-name">${ fields.name }</p>
+                                    <div class="ring-price">Rs. ${ fields.price }</div>
+                                    <a class="shop-now" href="/product/${p.pk}">Shop Now</a>
+                                </div>
+                            `;
+                        html += `</div>`;
+                    });
+                    $('#product-wrapper').html('');
+                    $('#product-wrapper').append(html);
+                });
+        }); 
+    }
+
+
+    function getGenderWiseProducts(slug){
+        // delete wrapper html
+        $('#heading').html(slug.charAt(0).toUpperCase() + slug.slice(1) + " {{ category_title|title }} " + "Collection");
+        $('#upper-wrapper').html('');
+        fetch('/shop/name/collection/'+ "{{ category_title|lower }}")
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                html = `
+                <link rel="stylesheet" href="{% static 'product/css/styles.css'%}">
+                <div class="rings-collection" id='tabs3'>`;
+                data.forEach(function(p){
+                    fields = p['fields'];
+                    html += `
+                    <div class="ring">
+                        <div class="img-area imagearea">
+                            <img src="/media/${ fields.thumbnail }" alt="" />
+                            <div class="ring-name">${ fields.name }</div>
+                        </div>
+                    </div>
+                    `
+                });
+                html += `</div>`;
+                $('#upper-wrapper').html('');
+                $('#upper-wrapper').html(html);
+                clicked = false;
+                // Add to head
+                addEventListenerForCollections();
+            });
+    }
+
+    var slug = "";
+    $('#man-card').click(function(){
+        if(clicked === false){
+            clicked=true;
+            slug = 'man';
+            getGenderWiseProducts(slug);
+        }
+    });
+    $('#woman-card').click(function(){
+        if(clicked === false){
+            clicked=true;
+            slug = 'woman';
+            getGenderWiseProducts(slug);
+        }
+    })
+</script>    
+{% endblock js %}
